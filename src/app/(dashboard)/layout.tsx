@@ -1,11 +1,11 @@
-import { Sidebar } from '@/components/shared/sidebar'
-import { Header } from '@/components/shared/header'
-import { ProtectedRoute } from '@/components/shared/protected-route'
+import { Sidebar } from "@/components/shared/sidebar";
+import { Header } from "@/components/shared/header";
+import { ProtectedRoute } from "@/components/shared/protected-route";
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <ProtectedRoute>
@@ -13,11 +13,9 @@ export default function DashboardLayout({
         <Sidebar />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Header />
-          <main className="flex-1 overflow-y-auto p-4">
-            {children}
-          </main>
+          <main className="flex-1 overflow-y-auto p-4">{children}</main>
         </div>
       </div>
     </ProtectedRoute>
-  )
+  );
 }

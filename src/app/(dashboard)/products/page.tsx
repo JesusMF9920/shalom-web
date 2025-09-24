@@ -1,10 +1,16 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, useCategories } from '@/hooks/use-products'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+import { useState } from "react";
+import {
+  useProducts,
+  useCreateProduct,
+  useUpdateProduct,
+  useDeleteProduct,
+  useCategories,
+} from "@/hooks/use-products";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -12,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -20,67 +26,69 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Search, Plus, Edit, Trash2 } from 'lucide-react'
-import { toast } from 'sonner'
-import type { Tables } from '@/types/database.types'
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Search, Plus, Edit, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import type { Tables } from "@/types/database.types";
 
-type Product = Tables<'products'> & {
-  categories: Pick<Tables<'categories'>, 'id' | 'name'> | null
-}
+type Product = Tables<"products"> & {
+  categories: Pick<Tables<"categories">, "id" | "name"> | null;
+};
 
 export default function ProductsPage() {
-  const { data: products, isLoading, error } = useProducts()
-  const { data: categories } = useCategories()
-  const createProduct = useCreateProduct()
-  const updateProduct = useUpdateProduct()
-  const deleteProduct = useDeleteProduct()
+  const { data: products, isLoading, error } = useProducts();
+  const { data: categories } = useCategories();
+  const createProduct = useCreateProduct();
+  const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
 
-  const [searchTerm, setSearchTerm] = useState('')
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Form states
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    barcode: '',
-    base_price: '',
-    category_id: '',
-    unit: '',
-  })
+    name: "",
+    description: "",
+    barcode: "",
+    base_price: "",
+    category_id: "",
+    unit: "",
+  });
 
   const filteredProducts = products?.filter((product) => {
-    const name = product.name?.toLowerCase() || ''
-    const barcode = product.barcode?.toLowerCase() || ''
-    const category = product.categories?.name?.toLowerCase() || ''
-    const search = searchTerm.toLowerCase()
+    const name = product.name?.toLowerCase() || "";
+    const barcode = product.barcode?.toLowerCase() || "";
+    const category = product.categories?.name?.toLowerCase() || "";
+    const search = searchTerm.toLowerCase();
 
-    return name.includes(search) ||
-           barcode.includes(search) ||
-           category.includes(search)
-  })
+    return (
+      name.includes(search) ||
+      barcode.includes(search) ||
+      category.includes(search)
+    );
+  });
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      description: '',
-      barcode: '',
-      base_price: '',
-      category_id: '',
-      unit: '',
-    })
-  }
+      name: "",
+      description: "",
+      barcode: "",
+      base_price: "",
+      category_id: "",
+      unit: "",
+    });
+  };
 
   const handleCreate = async () => {
     try {
@@ -92,18 +100,18 @@ export default function ProductsPage() {
         category_id: formData.category_id || null,
         unit: formData.unit || null,
         is_active: true,
-      })
+      });
 
-      toast.success('Producto creado correctamente')
-      setIsCreateDialogOpen(false)
-      resetForm()
+      toast.success("Producto creado correctamente");
+      setIsCreateDialogOpen(false);
+      resetForm();
     } catch {
-      toast.error('Error al crear el producto')
+      toast.error("Error al crear el producto");
     }
-  }
+  };
 
   const handleEdit = async () => {
-    if (!selectedProduct) return
+    if (!selectedProduct) return;
 
     try {
       await updateProduct.mutateAsync({
@@ -116,46 +124,49 @@ export default function ProductsPage() {
           category_id: formData.category_id || null,
           unit: formData.unit || null,
         },
-      })
+      });
 
-      toast.success('Producto actualizado correctamente')
-      setIsEditDialogOpen(false)
-      setSelectedProduct(null)
-      resetForm()
+      toast.success("Producto actualizado correctamente");
+      setIsEditDialogOpen(false);
+      setSelectedProduct(null);
+      resetForm();
     } catch {
-      toast.error('Error al actualizar el producto')
+      toast.error("Error al actualizar el producto");
     }
-  }
+  };
 
   const handleDelete = async (product: Product) => {
-    if (!confirm(`¿Estás seguro de que quieres eliminar "${product.name}"?`)) return
+    if (!confirm(`¿Estás seguro de que quieres eliminar "${product.name}"?`))
+      return;
 
     try {
-      await deleteProduct.mutateAsync(product.id)
-      toast.success('Producto eliminado correctamente')
+      await deleteProduct.mutateAsync(product.id);
+      toast.success("Producto eliminado correctamente");
     } catch {
-      toast.error('Error al eliminar el producto')
+      toast.error("Error al eliminar el producto");
     }
-  }
+  };
 
   const openEditDialog = (product: Product) => {
-    setSelectedProduct(product)
+    setSelectedProduct(product);
     setFormData({
       name: product.name,
-      description: product.description || '',
-      barcode: product.barcode || '',
+      description: product.description || "",
+      barcode: product.barcode || "",
       base_price: product.base_price.toString(),
-      category_id: product.category_id || '',
-      unit: product.unit || '',
-    })
-    setIsEditDialogOpen(true)
-  }
+      category_id: product.category_id || "",
+      unit: product.unit || "",
+    });
+    setIsEditDialogOpen(true);
+  };
 
   if (isLoading) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestión de Productos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Gestión de Productos
+          </h1>
           <p className="text-muted-foreground">
             Administra el catálogo de productos
           </p>
@@ -165,27 +176,29 @@ export default function ProductsPage() {
           <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestión de Productos</h1>
-          <p className="text-muted-foreground">
-            Error al cargar los productos
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Gestión de Productos
+          </h1>
+          <p className="text-muted-foreground">Error al cargar los productos</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestión de Productos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Gestión de Productos
+          </h1>
           <p className="text-muted-foreground">
             Administra el catálogo de productos
           </p>
@@ -225,13 +238,15 @@ export default function ProductsPage() {
             {filteredProducts?.map((product) => (
               <TableRow key={product.id}>
                 <TableCell className="font-medium">{product.name}</TableCell>
-                <TableCell>{product.barcode || '-'}</TableCell>
-                <TableCell>{product.categories?.name || '-'}</TableCell>
+                <TableCell>{product.barcode || "-"}</TableCell>
+                <TableCell>{product.categories?.name || "-"}</TableCell>
                 <TableCell>${product.base_price.toFixed(2)}</TableCell>
-                <TableCell>{product.unit || '-'}</TableCell>
+                <TableCell>{product.unit || "-"}</TableCell>
                 <TableCell>
-                  <Badge variant={product.is_active ? 'secondary' : 'destructive'}>
-                    {product.is_active ? 'Activo' : 'Inactivo'}
+                  <Badge
+                    variant={product.is_active ? "secondary" : "destructive"}
+                  >
+                    {product.is_active ? "Activo" : "Inactivo"}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
@@ -273,7 +288,9 @@ export default function ProductsPage() {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Nombre del producto"
               />
             </div>
@@ -282,7 +299,9 @@ export default function ProductsPage() {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Descripción del producto"
               />
             </div>
@@ -291,7 +310,9 @@ export default function ProductsPage() {
               <Input
                 id="barcode"
                 value={formData.barcode}
-                onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, barcode: e.target.value })
+                }
                 placeholder="Código de barras"
               />
             </div>
@@ -302,7 +323,9 @@ export default function ProductsPage() {
                 type="number"
                 step="0.01"
                 value={formData.base_price}
-                onChange={(e) => setFormData({ ...formData, base_price: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, base_price: e.target.value })
+                }
                 placeholder="0.00"
               />
             </div>
@@ -310,7 +333,9 @@ export default function ProductsPage() {
               <Label htmlFor="category">Categoría</Label>
               <Select
                 value={formData.category_id}
-                onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, category_id: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar categoría" />
@@ -329,7 +354,9 @@ export default function ProductsPage() {
               <Input
                 id="unit"
                 value={formData.unit}
-                onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, unit: e.target.value })
+                }
                 placeholder="kg, piezas, litros, etc."
               />
             </div>
@@ -339,8 +366,8 @@ export default function ProductsPage() {
               type="button"
               variant="outline"
               onClick={() => {
-                setIsCreateDialogOpen(false)
-                resetForm()
+                setIsCreateDialogOpen(false);
+                resetForm();
               }}
             >
               Cancelar
@@ -348,9 +375,13 @@ export default function ProductsPage() {
             <Button
               type="button"
               onClick={handleCreate}
-              disabled={createProduct.isPending || !formData.name || !formData.base_price}
+              disabled={
+                createProduct.isPending ||
+                !formData.name ||
+                !formData.base_price
+              }
             >
-              {createProduct.isPending ? 'Creando...' : 'Crear'}
+              {createProduct.isPending ? "Creando..." : "Crear"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -371,7 +402,9 @@ export default function ProductsPage() {
               <Input
                 id="edit-name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Nombre del producto"
               />
             </div>
@@ -380,7 +413,9 @@ export default function ProductsPage() {
               <Textarea
                 id="edit-description"
                 value={formData.description}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Descripción del producto"
               />
             </div>
@@ -389,7 +424,9 @@ export default function ProductsPage() {
               <Input
                 id="edit-barcode"
                 value={formData.barcode}
-                onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, barcode: e.target.value })
+                }
                 placeholder="Código de barras"
               />
             </div>
@@ -400,7 +437,9 @@ export default function ProductsPage() {
                 type="number"
                 step="0.01"
                 value={formData.base_price}
-                onChange={(e) => setFormData({ ...formData, base_price: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, base_price: e.target.value })
+                }
                 placeholder="0.00"
               />
             </div>
@@ -408,7 +447,9 @@ export default function ProductsPage() {
               <Label htmlFor="edit-category">Categoría</Label>
               <Select
                 value={formData.category_id}
-                onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, category_id: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar categoría" />
@@ -427,7 +468,9 @@ export default function ProductsPage() {
               <Input
                 id="edit-unit"
                 value={formData.unit}
-                onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, unit: e.target.value })
+                }
                 placeholder="kg, piezas, litros, etc."
               />
             </div>
@@ -437,9 +480,9 @@ export default function ProductsPage() {
               type="button"
               variant="outline"
               onClick={() => {
-                setIsEditDialogOpen(false)
-                setSelectedProduct(null)
-                resetForm()
+                setIsEditDialogOpen(false);
+                setSelectedProduct(null);
+                resetForm();
               }}
             >
               Cancelar
@@ -447,13 +490,17 @@ export default function ProductsPage() {
             <Button
               type="button"
               onClick={handleEdit}
-              disabled={updateProduct.isPending || !formData.name || !formData.base_price}
+              disabled={
+                updateProduct.isPending ||
+                !formData.name ||
+                !formData.base_price
+              }
             >
-              {updateProduct.isPending ? 'Actualizando...' : 'Actualizar'}
+              {updateProduct.isPending ? "Actualizando..." : "Actualizar"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

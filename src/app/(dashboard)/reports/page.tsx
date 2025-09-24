@@ -1,17 +1,27 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useSalesReport, useTopProducts, useInventoryReport } from '@/hooks/use-reports'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { useState } from "react";
+import {
+  useSalesReport,
+  useTopProducts,
+  useInventoryReport,
+} from "@/hooks/use-reports";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -19,7 +29,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 import {
   LineChart,
   Line,
@@ -30,62 +40,80 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-} from 'recharts'
-import { Download, TrendingUp, Package, AlertTriangle } from 'lucide-react'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
+} from "recharts";
+import { Download, TrendingUp, Package, AlertTriangle } from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export default function ReportsPage() {
-  const [timeRange, setTimeRange] = useState('30')
-  const { data: salesData, isLoading: salesLoading } = useSalesReport(parseInt(timeRange))
-  const { data: topProducts, isLoading: productsLoading } = useTopProducts(10)
-  const { data: inventoryData, isLoading: inventoryLoading } = useInventoryReport()
+  const [timeRange, setTimeRange] = useState("30");
+  const { data: salesData, isLoading: salesLoading } = useSalesReport(
+    parseInt(timeRange)
+  );
+  const { data: topProducts, isLoading: productsLoading } = useTopProducts(10);
+  const { data: inventoryData, isLoading: inventoryLoading } =
+    useInventoryReport();
 
-  const handleExport = (type: 'sales' | 'products' | 'inventory') => {
+  const handleExport = (type: "sales" | "products" | "inventory") => {
     // Basic CSV export
-    let csvContent = ''
-    let filename = ''
+    let csvContent = "";
+    let filename = "";
 
     switch (type) {
-      case 'sales':
-        csvContent = 'Fecha,Ventas\n' +
-          (salesData?.salesByDate.map(item =>
-            `${item.date},${item.amount.toFixed(2)}`
-          ).join('\n') || '')
-        filename = 'reporte-ventas.csv'
-        break
-      case 'products':
-        csvContent = 'Producto,Cantidad Vendida,Ingresos Totales\n' +
-          (topProducts?.map(item =>
-            `"${item.name}",${item.totalSold},${item.totalRevenue.toFixed(2)}`
-          ).join('\n') || '')
-        filename = 'productos-top.csv'
-        break
-      case 'inventory':
-        csvContent = 'Producto,Tienda,Cantidad Actual,Cantidad Mínima\n' +
-          (inventoryData?.lowStockItems.map(item =>
-            `"${item.products?.name || 'N/A'}","${item.stores?.name || 'N/A'}",${item.current_quantity || 0},${item.min_quantity || 0}`
-          ).join('\n') || '')
-        filename = 'inventario-bajo-stock.csv'
-        break
+      case "sales":
+        csvContent =
+          "Fecha,Ventas\n" +
+          (salesData?.salesByDate
+            .map((item) => `${item.date},${item.amount.toFixed(2)}`)
+            .join("\n") || "");
+        filename = "reporte-ventas.csv";
+        break;
+      case "products":
+        csvContent =
+          "Producto,Cantidad Vendida,Ingresos Totales\n" +
+          (topProducts
+            ?.map(
+              (item) =>
+                `"${item.name}",${item.totalSold},${item.totalRevenue.toFixed(
+                  2
+                )}`
+            )
+            .join("\n") || "");
+        filename = "productos-top.csv";
+        break;
+      case "inventory":
+        csvContent =
+          "Producto,Tienda,Cantidad Actual,Cantidad Mínima\n" +
+          (inventoryData?.lowStockItems
+            .map(
+              (item) =>
+                `"${item.products?.name || "N/A"}","${
+                  item.stores?.name || "N/A"
+                }",${item.current_quantity || 0},${item.min_quantity || 0}`
+            )
+            .join("\n") || "");
+        filename = "inventario-bajo-stock.csv";
+        break;
     }
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    const url = URL.createObjectURL(blob)
-    link.setAttribute('href', url)
-    link.setAttribute('download', filename)
-    link.style.visibility = 'hidden'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Reportes y Analytics</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Reportes y Analytics
+          </h1>
           <p className="text-muted-foreground">
             Análisis de ventas e inventarios
           </p>
@@ -108,12 +136,14 @@ export default function ReportsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ventas Totales</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Ventas Totales
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${salesData?.totalSales?.toFixed(2) || '0.00'}
+              ${salesData?.totalSales?.toFixed(2) || "0.00"}
             </div>
             <p className="text-xs text-muted-foreground">
               {salesData?.totalTransactions || 0} transacciones
@@ -123,46 +153,44 @@ export default function ReportsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Productos con Stock Bajo</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Productos con Stock Bajo
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
               {inventoryData?.lowStockCount || 0}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Requieren atención
-            </p>
+            <p className="text-xs text-muted-foreground">Requieren atención</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Productos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Productos
+            </CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {inventoryData?.totalItems || 0}
             </div>
-            <p className="text-xs text-muted-foreground">
-              En inventario
-            </p>
+            <p className="text-xs text-muted-foreground">En inventario</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Productos Más Vendidos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Productos Más Vendidos
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {topProducts?.length || 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Top productos
-            </p>
+            <div className="text-2xl font-bold">{topProducts?.length || 0}</div>
+            <p className="text-xs text-muted-foreground">Top productos</p>
           </CardContent>
         </Card>
       </div>
@@ -187,12 +215,19 @@ export default function ReportsPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="date"
-                    tickFormatter={(value) => format(new Date(value), 'dd/MM', { locale: es })}
+                    tickFormatter={(value) =>
+                      format(new Date(value), "dd/MM", { locale: es })
+                    }
                   />
                   <YAxis tickFormatter={(value) => `$${value}`} />
                   <Tooltip
-                    labelFormatter={(value) => format(new Date(value), 'PPP', { locale: es })}
-                    formatter={(value: number) => [`$${value.toFixed(2)}`, 'Ventas']}
+                    labelFormatter={(value) =>
+                      format(new Date(value), "PPP", { locale: es })
+                    }
+                    formatter={(value: number) => [
+                      `$${value.toFixed(2)}`,
+                      "Ventas",
+                    ]}
                   />
                   <Line
                     type="monotone"
@@ -209,9 +244,7 @@ export default function ReportsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Productos Más Vendidos</CardTitle>
-            <CardDescription>
-              Top 10 productos por ingresos
-            </CardDescription>
+            <CardDescription>Top 10 productos por ingresos</CardDescription>
           </CardHeader>
           <CardContent>
             {productsLoading ? (
@@ -231,7 +264,10 @@ export default function ReportsPage() {
                   />
                   <YAxis tickFormatter={(value) => `$${value}`} />
                   <Tooltip
-                    formatter={(value: number) => [`$${value.toFixed(2)}`, 'Ingresos']}
+                    formatter={(value: number) => [
+                      `$${value.toFixed(2)}`,
+                      "Ingresos",
+                    ]}
                   />
                   <Bar dataKey="totalRevenue" fill="#82ca9d" />
                 </BarChart>
@@ -254,7 +290,7 @@ export default function ReportsPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleExport('inventory')}
+              onClick={() => handleExport("inventory")}
             >
               <Download className="mr-2 h-4 w-4" />
               Exportar
@@ -278,18 +314,20 @@ export default function ReportsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {inventoryData?.lowStockItems.slice(0, 5).map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{item.products?.name || 'N/A'}</TableCell>
-                      <TableCell>{item.stores?.name || 'N/A'}</TableCell>
-                      <TableCell>
-                        <Badge variant="destructive">
-                          {item.current_quantity || 0}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{item.min_quantity || 0}</TableCell>
-                    </TableRow>
-                  ))}
+                  {inventoryData?.lowStockItems
+                    .slice(0, 5)
+                    .map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{item.products?.name || "N/A"}</TableCell>
+                        <TableCell>{item.stores?.name || "N/A"}</TableCell>
+                        <TableCell>
+                          <Badge variant="destructive">
+                            {item.current_quantity || 0}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{item.min_quantity || 0}</TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             )}
@@ -307,7 +345,7 @@ export default function ReportsPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleExport('products')}
+              onClick={() => handleExport("products")}
             >
               <Download className="mr-2 h-4 w-4" />
               Exportar
@@ -332,7 +370,9 @@ export default function ReportsPage() {
                 <TableBody>
                   {topProducts?.slice(0, 5).map((product, index) => (
                     <TableRow key={index}>
-                      <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {product.name}
+                      </TableCell>
                       <TableCell>{product.totalSold}</TableCell>
                       <TableCell>${product.totalRevenue.toFixed(2)}</TableCell>
                     </TableRow>
@@ -344,5 +384,5 @@ export default function ReportsPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

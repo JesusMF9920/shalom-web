@@ -17,7 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Shalom Admin - Sistema de Inventarios",
-  description: "Sistema de administración de inventarios para cadena de tiendas de plásticos",
+  description:
+    "Sistema de administración de inventarios para cadena de tiendas de plásticos",
 };
 
 export default function RootLayout({

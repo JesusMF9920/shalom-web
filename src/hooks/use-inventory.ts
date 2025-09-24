@@ -1,21 +1,22 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createClient } from '@/lib/supabase/client'
-import type { Tables } from '@/types/database.types'
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { createClient } from "@/lib/supabase/client";
+import type { Tables } from "@/types/database.types";
 
-const supabase = createClient()
+const supabase = createClient();
 
-type InventoryItem = Tables<'inventory'> & {
-  products: Tables<'products'> | null
-  stores: Tables<'stores'> | null
-}
+type InventoryItem = Tables<"inventory"> & {
+  products: Tables<"products"> | null;
+  stores: Tables<"stores"> | null;
+};
 
 export function useInventory() {
   return useQuery({
-    queryKey: ['inventory'],
+    queryKey: ["inventory"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('inventory')
-        .select(`
+        .from("inventory")
+        .select(
+          `
           *,
           products (
             id,
@@ -26,42 +27,43 @@ export function useInventory() {
             id,
             name
           )
-        `)
-        .order('last_updated', { ascending: false })
+        `
+        )
+        .order("last_updated", { ascending: false });
 
-      if (error) throw error
-      return data as InventoryItem[]
+      if (error) throw error;
+      return data as InventoryItem[];
     },
-  })
+  });
 }
 
 export function useUpdateInventory() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
       id,
       current_quantity,
     }: {
-      id: string
-      current_quantity: number
+      id: string;
+      current_quantity: number;
     }) => {
       const { data, error } = await supabase
-        .from('inventory')
+        .from("inventory")
         .update({
           current_quantity,
           last_updated: new Date().toISOString(),
         })
-        .eq('id', id)
+        .eq("id", id)
         .select()
-        .single()
+        .single();
 
-      if (error) throw error
-      return data
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inventory'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard-metrics'] })
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-metrics"] });
     },
-  })
+  });
 }
