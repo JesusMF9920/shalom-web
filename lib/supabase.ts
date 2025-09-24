@@ -1,6 +1,6 @@
 // lib/supabase.ts (cambió de .js a .ts)
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "../types/database.types"; // Tipos auto-generados
+import { Database } from "@/types/database.types"; // Tipos auto-generados
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
